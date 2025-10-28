@@ -1,0 +1,12 @@
+replicaCount: 1
+
+image:
+  repository: localhost/helm-testing
+  tag: 'latest'
+port: 81
+containerPort: 3000
+nodePort: 30080
+
+env:
+  NODE_ENV: 'development'
+  APP_NAME: 'Node App - Default'

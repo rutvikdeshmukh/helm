@@ -1,0 +1,6 @@
+image:
+  tag: 'latest'
+nodePort: 30081
+env:
+  NODE_ENV: 'staging'
+  APP_NAME: 'Node App - Staging'

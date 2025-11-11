@@ -14,6 +14,19 @@ spec:
         app: {{.Values.workspaceOidcProvider.deployment.appName }}
     spec:
       hostname: {{ .Values.workspaceOidcProvider.deployment.appName}}
+      initContainers:
+        - name: wait-for-redis
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "⏳ Waiting for Redis service to be ready..."
+              until nc -z {{ .Release.Name }}-redis-master 6379; do
+                echo "🔁 Redis not ready yet, retrying in 2s..."
+                sleep 2
+              done
+              echo "✅ Redis service is reachable!"
       containers:
         - name: {{ .Values.workspaceOidcProvider.deployment.containers.name}}
           image: "{{ .Values.workspaceOidcProvider.deployment.image.repository }}:{{ .Values.workspaceOidcProvider.deployment.image.tag }}"

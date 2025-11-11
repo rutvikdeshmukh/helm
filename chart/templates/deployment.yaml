@@ -1,25 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: '{{ .Release.Name }}'
+  name: {{ .Values.workspaceOidcProvider.deployment.name }}
+  namespace: {{ .Values.workspaceOidcProvider.namespace}}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.workspaceOidcProvider.deployment.replicaCount }}
   selector:
     matchLabels:
-      app: '{{ .Release.Name }}'
+      app: {{ .Values.workspaceOidcProvider.deployment.appName }}
   template:
     metadata:
       labels:
-        app: '{{ .Release.Name }}'
+        app: {{.Values.workspaceOidcProvider.deployment.appName }}
     spec:
+      hostname: {{ .Values.workspaceOidcProvider.deployment.appName}}
       containers:
-        - name: '{{ .Release.Name }}'
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-          imagePullPolicy: Never
-          ports:
-            - containerPort: {{ .Values.containerPort }}
+        - name: {{ .Values.workspaceOidcProvider.deployment.containers.name}}
+          image: "{{ .Values.workspaceOidcProvider.deployment.image.repository }}:{{ .Values.workspaceOidcProvider.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.workspaceOidcProvider.deployment.image.pullPolicy }}
           env:
-            - name: NODE_ENV
-              value: '{{ .Values.env.NODE_ENV }}'
-            - name: APP_NAME
-              value: '{{ .Values.env.APP_NAME }}'
+            - name: JWT_SECRET_KEY
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.jwtSecretKey }}"
+            - name: DB_HOST
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.dbHost }}"
+            - name: DB_PORT
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.dbPort}}"
+            - name: DB_USER
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.dbUser }}"
+            - name: DB_PASS
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.dbPass }}"
+            - name: DB_NAME
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.dbName }}"
+            - name: DB_DIALECT
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.dbDialect }}"
+            - name: OIDC_ISSUER_URL
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.oidcUrl }}"
+            - name: WORKSPACE_URL
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.workspaceUrl}}"
+            - name: REDIS_URL
+              value: "redis://:{{ .Values.redis.auth.password }}@{{ .Release.Name }}-redis-master:6379/0"
+            - name: REDIS_TTL_SECONDS
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.redisTtlSeconds }}"

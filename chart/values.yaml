@@ -1,12 +1,49 @@
-replicaCount: 1
+workspaceOidcProvider:
+  namespace: "ws-oidc-provider-ns"
+  deployment:
+    name: "ws-oidc-provider-deployment"
+    appName: "ws-oidc-provider"
+    replicaCount: 1
+    image:
+      repository: "localhost/redis-app"
+      tag: "latest"
+      pullPolicy: "Never"
+    containers:
+      name: "ws-oidc-provider"
+    env:
+      jwtSecretKey: "your_jwt_secret_key"
+      dbHost: "127.0.0.1"
+      dbPort: "3306"
+      dbUser: "root"
+      dbPass: "root"
+      dbName: "oidc_provider"
+      dbDialect: "mysql"
+      oidcUrl: "https://authDB_USER.businesseye.dev:3000/oidc"
+      workspaceUrl: "https://magic.businesseye.dev"
 
-image:
-  repository: localhost/helm-testing
-  tag: 'latest'
-port: 81
-containerPort: 3000
-nodePort: 30080
+      # 👇 Redis URL will be dynamically rendered using the Helm release name
+      redisUrl: ""
+      redisTtlSeconds: "3600"
 
-env:
-  NODE_ENV: 'development'
-  APP_NAME: 'Node App - Default'
+  service:
+    name: "ws-oidc-provider-service"
+    appName: "ws-oidc-provider"
+    port: 81
+    containerPort: 3000
+    nodePort: 30080
+
+
+# 👇 Bitnami Redis subchart configuration
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: "change-me-redis-password"
+  master:
+    persistence:
+      enabled: false
+  image:
+    registry: docker.io
+    repository: bitnami/redis
+    tag: 7.2.4-debian-12-r10   # ✅ stable and available tag

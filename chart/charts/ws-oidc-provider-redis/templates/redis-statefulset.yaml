@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: ws-oidc-provider-redis-deployment
+    labels:
+        app: ws-oidc-provider-redis
+    namespace: {{ .Values.namespace }}
+spec:
+    replicas: 1
+    serviceName: ws-oidc-provider-redis-service
+    selector:
+        matchLabels:
+            app: ws-oidc-provider-redis
+    template:
+        metadata:
+            labels:
+                app: ws-oidc-provider-redis
+        spec:
+            containers:
+            - name: ws-oidc-provider-redis
+              image: redis/redis-stack-server:6.2.6-v9
+              imagePullPolicy: Always
+              ports:
+                - containerPort: {{ .Values.redis.port }}
+              command:
+                - redis-server
+                - "/redis-master/redis.conf"
+                - "--port"
+                - "{{ .Values.redis.port }}"
+                - "--bind"
+                - "{{ .Values.redis.hostname }}"
+                - "--requirepass"
+                - "{{ .Values.redis.password }}"                
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+                - mountPath: /redis-master
+                  name: config
+            volumes:
+            - name: config
+              configMap:
+                name: redis-config
+                items:
+                - key: redis-config
+                  path: redis.conf
+    volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "standard"
+        resources:
+          requests:
+            storage: 1Gi

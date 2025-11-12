@@ -1,0 +1,5 @@
+namespace: "ws-oidc-provider-ns"
+redis:
+  hostname: "0.0.0.0"
+  port: 6378
+  password: "dev-redis-pass"

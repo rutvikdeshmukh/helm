@@ -22,7 +22,7 @@ workspaceOidcProvider:
       workspaceUrl: "https://magic.businesseye.dev"
 
       # 👇 Redis URL will be dynamically rendered using the Helm release name
-      redisUrl: ""
+      redisUrl: "redis://:dev-redis-pass@ws-oidc-provider-redis-service:6378/0"
       redisTtlSeconds: "3600"
 
   service:
@@ -31,19 +31,3 @@ workspaceOidcProvider:
     port: 81
     containerPort: 3000
     nodePort: 30080
-
-
-# 👇 Bitnami Redis subchart configuration
-redis:
-  enabled: true
-  architecture: standalone
-  auth:
-    enabled: true
-    password: "change-me-redis-password"
-  master:
-    persistence:
-      enabled: false
-  image:
-    registry: docker.io
-    repository: bitnami/redis
-    tag: "latest"

@@ -15,18 +15,17 @@ spec:
     spec:
       hostname: {{ .Values.workspaceOidcProvider.deployment.appName}}
       initContainers:
-        - name: wait-for-redis
-          image: busybox:latest
+        - name: init-redis
+          image: redis:6.2.6
           command:
             - sh
             - -c
-            - |
-              echo "⏳ Waiting for Redis service to be ready..."
-              until nc -z {{ .Release.Name }}-redis-master 6379; do
-                echo "🔁 Redis not ready yet, retrying in 2s..."
-                sleep 2
-              done
-              echo "✅ Redis service is reachable!"
+            - >
+              until redis-cli -h ws-oidc-provider-redis-service -p 6378 ping; do
+                echo "Waiting for Redis server to become available...";
+                sleep 1;
+              done;
+              echo "Redis server is available."
       containers:
         - name: {{ .Values.workspaceOidcProvider.deployment.containers.name}}
           image: "{{ .Values.workspaceOidcProvider.deployment.image.repository }}:{{ .Values.workspaceOidcProvider.deployment.image.tag }}"
@@ -51,6 +50,6 @@ spec:
             - name: WORKSPACE_URL
               value: "{{ .Values.workspaceOidcProvider.deployment.env.workspaceUrl}}"
             - name: REDIS_URL
-              value: "redis://:{{ .Values.redis.auth.password }}@{{ .Release.Name }}-redis-master:6379/0"
+              value: "{{ .Values.workspaceOidcProvider.deployment.env.redisUrl }}"
             - name: REDIS_TTL_SECONDS
               value: "{{ .Values.workspaceOidcProvider.deployment.env.redisTtlSeconds }}"

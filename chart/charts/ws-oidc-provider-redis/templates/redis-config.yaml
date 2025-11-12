@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: {{ .Values.namespace }}
+data:
+  redis-config: |
+    loadmodule /opt/redis-stack/lib/redisearch.so
+    loadmodule /opt/redis-stack/lib/redisgraph.so
+    loadmodule /opt/redis-stack/lib/redistimeseries.so
+    loadmodule /opt/redis-stack/lib/rejson.so
+    loadmodule /opt/redis-stack/lib/redisbloom.so
+    maxmemory 6000mb
+    tcp-keepalive 0
+    maxmemory-policy allkeys-lru
+    notify-keyspace-events Ex
+    dir /data/
+    save ""
+    bind {{ .Values.redis.hostname }}
+    requirepass {{ .Values.redis.password }}
